@@ -18,7 +18,7 @@ def start_server():
     SERVER_PORT = os.getenv("SERVER_PORT")
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((SERVER_IP, SERVER_PORT))
+    server_socket.bind((SERVER_IP, int(SERVER_PORT)))
 
     # How many clients the server can listen for simultaneously
     server_socket.listen(max_clients)
