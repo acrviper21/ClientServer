@@ -34,37 +34,41 @@ def start_client():
 
         if message.lower().strip() == "\\blue":
             text_color = Fore.BLUE
+            continue
         elif message.lower().strip() == "\\green":
             text_color = Fore.GREEN
+            continue
         elif message.lower().strip() == "\\red":
             text_color = Fore.RED
+            continue
         elif message.lower().strip() == "\\default":
             text_color = Fore.RESET
-        else:
-            try:
-                client_socket.send(message.encode())
-                data = client_socket.recv(1024).decode()
+            continue
 
-                # If server shuts down then exit
-                if data.lower().strip() == "exit":
-                    print("Server is closing.")
-                    client_socket.close()
-                    break
+        try:
+            client_socket.send(message.encode())
+            data = client_socket.recv(1024).decode()
 
-                # If client shuts down let server know
-                elif message.lower().strip() == "exit":
-                    print(f"Server: {data}")
-                    client_socket.close()
-                    break
-                # Else just print the server message
-                else:
-                    print(f"Server: {data}")
-
-            except BrokenPipeError:
-                print("Server is currently down.")
-                print("Try again later. Exiting...")
+            # If server shuts down then exit
+            if data.lower().strip() == "exit":
+                print("Server is closing.")
                 client_socket.close()
-                sys.exit(1)
+                break
+
+            # If client shuts down let server know
+            elif message.lower().strip() == "exit":
+                print(f"Server: {data}")
+                client_socket.close()
+                break
+            # Else just print the server message
+            else:
+                print(f"Server: {data}")
+
+        except BrokenPipeError:
+            print("Server is currently down.")
+            print("Try again later. Exiting...")
+            client_socket.close()
+            sys.exit(1)
 
 
         
