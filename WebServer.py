@@ -1,6 +1,7 @@
 import socket
 from dotenv import load_dotenv
 import os
+from colorama import Fore
 
 load_dotenv()
 
@@ -37,12 +38,11 @@ def start_server():
       
         # Send data back to client
         message = input("Server -> ")
+
         conn.send(message.encode())
         if message.lower().strip() == "exit":
             print("Shutting down server...")
             break
-        conn.send(message.encode())
-
 
     # Close connection
     conn.close()
