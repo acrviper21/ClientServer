@@ -2,11 +2,16 @@ import socket
 from dotenv import load_dotenv
 import os 
 import sys
+from colorama import Fore
 
 load_dotenv()
 
 def start_client():
-    #Allow user to choose a username
+    # Default text color
+    default_text_color = Fore.RESET
+    text_color = default_text_color
+
+    # Allow user to choose a username
     username = input("Hello, please enter a username: ")
     
     SERVER_IP = os.getenv("SERVER_IP")
@@ -18,35 +23,51 @@ def start_client():
     try:
         client_socket.connect((SERVER_IP, int(SERVER_PORT)))
         client_socket.send(username.encode())
-        message = input(f"{username} -> ")
+        #message = input(f"{text_color}{username} {default_text_color}-> ")
     except ConnectionRefusedError:
         print("Cannot connect to server...")
         print("Try again later. Exiting...")
         sys.exit(1)
 
-    while True:
-        try:
-            client_socket.send(message.encode())
-            data = client_socket.recv(1024).decode()
-        except BrokenPipeError:
-            print("Server is currently down.")
-            print("Try again later. Exiting...")
-            client_socket.close()
-            sys.exit(1)
+    while True:    
+        message = input(f"{text_color}{username} {default_text_color}-> ")
 
-        if data.lower().strip() == "exit":
-            print("Server is closing.")
-            client_socket.close()
-            break
-            
+        if message.lower().strip() == "\\blue":
+            text_color = Fore.BLUE
+        elif message.lower().strip() == "\\green":
+            text_color = Fore.GREEN
+        elif message.lower().strip() == "\\red":
+            text_color = Fore.RED
+        elif message.lower().strip() == "\\default":
+            text_color = Fore.RESET
+        else:
+            try:
+                client_socket.send(message.encode())
+                data = client_socket.recv(1024).decode()
 
-        if message.lower().strip() == "exit":
-            print(f"Server: {data}")
-            client_socket.close()
-            break
+                # If server shuts down then exit
+                if data.lower().strip() == "exit":
+                    print("Server is closing.")
+                    client_socket.close()
+                    break
 
-        print(f"Server: {data}")
-        message = input(f"{username} -> ")
+                # If client shuts down let server know
+                elif message.lower().strip() == "exit":
+                    print(f"Server: {data}")
+                    client_socket.close()
+                    break
+                # Else just print the server message
+                else:
+                    print(f"Server: {data}")
+
+            except BrokenPipeError:
+                print("Server is currently down.")
+                print("Try again later. Exiting...")
+                client_socket.close()
+                sys.exit(1)
+
+
+        
 
     # Close connections
     client_socket.close()
